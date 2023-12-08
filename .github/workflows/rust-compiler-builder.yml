@@ -1,0 +1,52 @@
+name: Rust Compiler Builder
+
+on:
+  push:
+    paths-ignore:
+      - '**/README.md'
+  schedule:
+    # https://crontab.guru/
+    # At 12:00 AM, only on Monday
+    - cron: 0 0 * * 1
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [
+          # macos-11,
+          # macos-12,
+          macos-13,
+        ]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Checkout Rust
+        uses: actions/checkout@v4
+        with:
+          repository: rust-lang/rust
+          submodules: true
+          path: rust
+
+      - name: Configure Rust
+        run: make configure
+
+      - name: Build Rust
+        run: make all
+        working-directory: ./rust
+
+      - name: Build Rust dist
+        run: make dist
+        working-directory: ./rust
+
+      # - name: Run tests
+      #   run: make check
+      #   working-directory: ./rust
+
+      - name: Archive Rust dist
+        uses: actions/upload-artifact@v3
+        with:
+          name: rust
+          path: ./rust/build/dist/*.xz

@@ -1,0 +1,4 @@
+# RUST_TOOLS = cargo,rustfmt
+# RUST_TARGETS = arm64e-apple-ios,arm64e-apple-darwin
+# RUST_CHANNEL = stable
+# RUST_VERBOSE = 3

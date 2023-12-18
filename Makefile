@@ -7,6 +7,7 @@ RUST_PREBUILT_OUTPUT_DIR ?= rust/build/cache
 RUST_GIT_URL ?= https://github.com/rust-lang/rust.git
 RUST_TOOLS ?= cargo,clippy,rustdoc,rustfmt,rust-analyzer,analysis,src
 RUST_TARGETS ?= aarch64-apple-ios,aarch64-apple-darwin
+RUST_HOST ?= x86_64-apple-darwin
 RUST_VERBOSE ?= 0
 RUST_CHANNEL ?= dev
 RUST_DESCRIPTION ?= ""
@@ -18,7 +19,9 @@ RUST_DIST_FORMATS ?= xz
 
 .PHONY: help
 help:			## Show this help
-	@fgrep -h "## " $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
+	@fgrep -h "## " $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/## //'
+
+## ▸▸▸ Download commands ◂◂◂
 
 .PHONY: download
 download:		## Download Rust sources
@@ -39,6 +42,8 @@ download-offline:	## Download prebuilt Rust binaries
 # Configure: https://github.com/rust-lang/rust/blob/master/src/bootstrap/configure.py
 ###
 
+## ▸▸▸ Configure commands ◂◂◂
+
 .PHONY: configure
 configure:		## Configure Rust
 	cd rust && ./configure \
@@ -55,8 +60,8 @@ configure:		## Configure Rust
 		--dist-compression-formats=${RUST_DIST_FORMATS} \
 		--prefix=${RUST_INSTALL_DIR}
 
-.PHONY: configure-offline
-configure-offline:	## Configure Rust and LLVM
+.PHONY: configure-with-llvm
+configure-with-llvm:	## Configure Rust and LLVM
 	cd rust && ./configure \
 		--enable-option-checking \
 		--enable-sccache \
@@ -64,6 +69,7 @@ configure-offline:	## Configure Rust and LLVM
 		--enable-verbose-tests \
 		--enable-codegen-tests \
 		--enable-dist-src \
+		--enable-full-tools \
 		--tools=${RUST_TOOLS} \
 		--target=${RUST_TARGETS} \
 		--set llvm.download-ci-llvm=false \
@@ -73,6 +79,16 @@ configure-offline:	## Configure Rust and LLVM
 		--set build.verbose=${RUST_VERBOSE} \
 		--set rust.channel=${RUST_CHANNEL} \
 		--set rust.description=${RUST_DESCRIPTION} \
+		--set rust.use-lld=true \
 		--set rust.omit-git-hash=true \
 		--dist-compression-formats=${RUST_DIST_FORMATS} \
 		--prefix=${RUST_INSTALL_DIR}
+
+## ▸▸▸ Target Info commands ◂◂◂
+
+.PHONY: show-target-info
+show-target-info: SHELL:=/bin/bash
+show-target-info:	## Show target info
+	@for RUST_TARGET in $(shell echo ${RUST_TARGETS} | tr "," " "); do \
+		rust/build/${RUST_HOST}/stage2/bin/rustc -Z unstable-options --target=$${RUST_TARGET} --print target-spec-json | tee $${RUST_TARGET}-spec.json ; \
+	done;

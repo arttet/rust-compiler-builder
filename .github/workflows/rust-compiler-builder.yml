@@ -11,15 +11,94 @@ on:
 
 jobs:
   build:
+    name: ${{ matrix.rust-targets }}_${{ matrix.xcode-version }} [${{ matrix.os }}]
     strategy:
+      fail-fast: false
       matrix:
-        os: [
-          # macos-11,
-          # macos-12,
-          macos-13,
-        ]
+        include:
+          # https://github.com/actions/runner-images/tree/main/images/macos
+          # https://developer.apple.com/support/xcode/
+
+          - rust-targets: arm64e-apple-ios
+            os: macos-13
+            xcode-version: 15.0.1
+            rust-config: configure-with-llvm
+            rust-verbose-level: 0
+            macosx_deployment_target: 11.0
+            iphoneos_deployment_target: 14.0
+
+          - rust-targets: arm64e-apple-ios
+            os: macos-13
+            xcode-version: 14.3.1
+            rust-config: configure
+            rust-verbose-level: 0
+            macosx_deployment_target: 11.0
+            iphoneos_deployment_target: 14.0
+
+          - rust-targets: aarch64-apple-ios
+            os: macos-13
+            xcode-version: 15.0.1
+            rust-config: configure
+            rust-verbose-level: 0
+
+          - rust-targets: arm64e-apple-darwin
+            os: macos-13
+            xcode-version: 15.0.1
+            rust-config: configure-with-llvm
+            rust-verbose-level: 0
+            macosx_deployment_target: 11.0
+            iphoneos_deployment_target: 14.0
+
+          - rust-targets: arm64e-apple-darwin
+            os: macos-13
+            xcode-version: 14.3.1
+            rust-config: configure
+            rust-verbose-level: 0
+            macosx_deployment_target: 11.0
+            iphoneos_deployment_target: 14.0
+
+          - rust-targets: aarch64-apple-darwin
+            os: macos-13
+            xcode-version: 15.0.1
+            rust-config: configure
+            rust-verbose-level: 0
+
     runs-on: ${{ matrix.os }}
+    env:
+      MACOSX_DEPLOYMENT_TARGET: ${{ matrix.macosx_deployment_target }}
+      IPHONEOS_DEPLOYMENT_TARGET: ${{ matrix.iphoneos_deployment_target }}
+      RUST_TARGETS: ${{ matrix.rust-targets }}
+
     steps:
+      - name: Xcode Select Version
+        uses: mobiledevops/xcode-select-version-action@v1
+        with:
+          xcode-select-version: ${{ matrix.xcode-version }}
+
+      - name: Install Ninja
+        run: brew install ninja
+
+      - name: Install sccache
+        run: brew install sccache
+
+      - name: Install llvm
+        run: |
+          HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 brew install llvm
+          echo "PATH=$PATH:/usr/local/opt/llvm/bin" >> $GITHUB_ENV
+
+      - name: Show System Info
+        run: |
+          echo $PATH
+          uname -a
+          xcodebuild -version
+          xcrun --show-sdk-path
+          sccache --version
+          cmake --version
+          ninja --version
+          clang -v
+          ld -v
+          lld -flavor ld --version
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -31,22 +110,29 @@ jobs:
           path: rust
 
       - name: Configure Rust
-        run: make configure
+        run: make ${{ matrix.rust-config }}
+        env:
+          RUST_VERBOSE: ${{ matrix.rust-verbose-level }}
 
       - name: Build Rust
         run: make all
         working-directory: ./rust
 
+      - name: Show Target Spec
+        run: make show-target-info
+
       - name: Build Rust dist
         run: make dist
         working-directory: ./rust
 
-      # - name: Run tests
-      #   run: make check
-      #   working-directory: ./rust
-
       - name: Archive Rust dist
         uses: actions/upload-artifact@v4
         with:
-          name: rust
+          name: rust-${{ matrix.rust-targets }}_${{ matrix.xcode-version }}-${{ matrix.os }}
           path: ./rust/build/dist/*.xz
+
+      - name: Archive target spec
+        uses: actions/upload-artifact@v3
+        with:
+          name: rust-${{ matrix.rust-targets }}_${{ matrix.xcode-version }}-spec
+          path: ./*.json

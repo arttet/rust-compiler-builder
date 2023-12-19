@@ -13,6 +13,7 @@ RUST_CHANNEL ?= dev
 RUST_DESCRIPTION ?= ""
 RUST_INSTALL_DIR ?= install
 RUST_DIST_FORMATS ?= xz
+RUST_USE_LLD ?= false
 
 # NOTE: use Makefile.local for customization
 -include Makefile.local
@@ -57,6 +58,7 @@ configure:		## Configure Rust
 		--set build.verbose=${RUST_VERBOSE} \
 		--set rust.channel=${RUST_CHANNEL} \
 		--set rust.description=${RUST_DESCRIPTION} \
+		--set rust.use-lld=${RUST_USE_LLD} \
 		--dist-compression-formats=${RUST_DIST_FORMATS} \
 		--prefix=${RUST_INSTALL_DIR}
 
@@ -79,7 +81,7 @@ configure-with-llvm:	## Configure Rust and LLVM
 		--set build.verbose=${RUST_VERBOSE} \
 		--set rust.channel=${RUST_CHANNEL} \
 		--set rust.description=${RUST_DESCRIPTION} \
-		--set rust.use-lld=true \
+		--set rust.use-lld=${RUST_USE_LLD} \
 		--set rust.omit-git-hash=true \
 		--dist-compression-formats=${RUST_DIST_FORMATS} \
 		--prefix=${RUST_INSTALL_DIR}

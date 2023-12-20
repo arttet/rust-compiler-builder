@@ -50,6 +50,7 @@ configure:		## Configure Rust
 	cd rust && ./configure \
 		--enable-option-checking \
 		--enable-verbose-tests \
+		--codegen-backends=llvm \
 		--enable-codegen-tests \
 		--enable-dist-src \
 		--tools=${RUST_TOOLS} \
@@ -81,7 +82,6 @@ configure-with-llvm:	## Configure Rust and LLVM
 		--set build.verbose=${RUST_VERBOSE} \
 		--set rust.channel=${RUST_CHANNEL} \
 		--set rust.description=${RUST_DESCRIPTION} \
-		--set rust.use-lld=${RUST_USE_LLD} \
 		--set rust.omit-git-hash=true \
 		--dist-compression-formats=${RUST_DIST_FORMATS} \
 		--prefix=${RUST_INSTALL_DIR}

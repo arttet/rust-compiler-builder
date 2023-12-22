@@ -19,12 +19,21 @@ jobs:
           # https://github.com/actions/runner-images/tree/main/images/macos
           # https://developer.apple.com/support/xcode/
 
-          - rust-targets: arm64e-apple-ios,aarch64-apple-ios,arm64e-apple-darwin,aarch64-apple-darwin
+          - rust-targets: arm64e-apple-darwin
             os: macos-13
             xcode-version: 15.0.1
             rust-config: configure
             rust-verbose-level: 0
-            rust-use-lld: true
+            rust-use-lld: false
+            macosx_deployment_target: 11.0
+            iphoneos_deployment_target: 14.0
+
+          - rust-targets: arm64e-apple-darwin
+            os: macos-13
+            xcode-version: 14.3.1
+            rust-config: configure
+            rust-verbose-level: 0
+            rust-use-lld: false
             macosx_deployment_target: 11.0
             iphoneos_deployment_target: 14.0
 
@@ -103,3 +112,10 @@ jobs:
         with:
           name: rust-${{ matrix.rust-targets }}_${{ matrix.xcode-version }}-spec
           path: ./*.json
+
+      - name: Archive the Rust build
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rust-${{ matrix.xcode-version }}
+          path: ./rust/build

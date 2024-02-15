@@ -22,7 +22,7 @@ jobs:
 
           - rust-targets: arm64e-apple-ios,aarch64-apple-ios,arm64e-apple-darwin,aarch64-apple-darwin
             os: macos-13
-            xcode-version: 15.0.1
+            xcode-version: 15.2
             rust-config: configure
             rust-verbose-level: 0
             rust-use-lld: true

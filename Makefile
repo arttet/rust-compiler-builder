@@ -67,22 +67,14 @@ configure:		## Configure Rust
 configure-with-llvm:	## Configure Rust and LLVM
 	cd rust && ./configure \
 		--enable-option-checking \
-		--enable-sccache \
 		--enable-ninja \
-		--enable-verbose-tests \
-		--enable-codegen-tests \
-		--enable-dist-src \
-		--enable-full-tools \
 		--tools=${RUST_TOOLS} \
 		--target=${RUST_TARGETS} \
 		--set llvm.download-ci-llvm=false \
 		--set llvm.targets="AArch64;X86" \
 		--set llvm.experimental-targets="" \
-		--set llvm.tests=true \
 		--set build.verbose=${RUST_VERBOSE} \
 		--set rust.channel=${RUST_CHANNEL} \
-		--set rust.description=${RUST_DESCRIPTION} \
-		--set rust.omit-git-hash=true \
 		--dist-compression-formats=${RUST_DIST_FORMATS} \
 		--prefix=${RUST_INSTALL_DIR}
 

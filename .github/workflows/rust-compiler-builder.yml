@@ -12,19 +12,34 @@ on:
 
 jobs:
   build:
-    name: ${{ matrix.rust-targets }}_${{ matrix.xcode-version }} [${{ matrix.os }}]
+    name: ${{ matrix.rust-targets }} [${{ matrix.xcode-version }}] [${{ matrix.os }}]
     strategy:
       fail-fast: false
       matrix:
         include:
+          # https://github.com/actions/runner-images?tab=readme-ov-file#available-images
           # https://github.com/actions/runner-images/tree/main/images/macos
           # https://developer.apple.com/support/xcode/
 
-          - rust-targets: arm64e-apple-ios,aarch64-apple-ios,arm64e-apple-darwin,aarch64-apple-darwin
-            os: macos-13
-            xcode-version: 15.2
+          # Regression: arm64e-apple-darwin
+          # Regression: arm64e-apple-ios
+          # Regression: aarch64-apple-tvos
+          # Regression: macos-14 arm64
+
+          - rust-targets: aarch64-apple-darwin
+            os: macos-13 # x86-64
+            xcode-version: 14.3.1
             rust-config: configure
-            rust-verbose-level: 0
+            rust-verbose-level: 3
+            rust-use-lld: true
+            macosx_deployment_target: 11.0
+            iphoneos_deployment_target: 14.0
+
+          - rust-targets: aarch64-apple-ios
+            os: macos-13 # x86-64
+            xcode-version: 14.3.1
+            rust-config: configure
+            rust-verbose-level: 3
             rust-use-lld: true
             macosx_deployment_target: 11.0
             iphoneos_deployment_target: 14.0
@@ -36,10 +51,10 @@ jobs:
       RUST_TARGETS: ${{ matrix.rust-targets }}
 
     steps:
-      - name: Xcode Select Version
-        uses: mobiledevops/xcode-select-version-action@v1
-        with:
-          xcode-select-version: ${{ matrix.xcode-version }}
+      - name: Install Xcode ${{ matrix.xcode-version }}
+        run: |
+          sudo xcode-select -s /Applications/Xcode_${{ matrix.xcode-version }}.app
+          sudo xcode-select -p
 
       - name: Install Ninja
         run: brew install ninja
@@ -49,8 +64,8 @@ jobs:
 
       - name: Install llvm
         run: |
-          HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 brew install llvm
-          echo "PATH=$PATH:/usr/local/opt/llvm/bin" >> $GITHUB_ENV
+          brew install llvm
+          echo "PATH=$PATH:/opt/homebrew/opt/llvm/bin:/usr/local/opt/llvm/bin" >> $GITHUB_ENV
 
       - name: Show System Info
         run: |
@@ -64,6 +79,7 @@ jobs:
           clang -v
           ld -v
           lld -flavor ld --version
+          df -h .
 
       - name: Checkout
         uses: actions/checkout@v4

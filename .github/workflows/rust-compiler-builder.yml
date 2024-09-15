@@ -1,10 +1,39 @@
 name: Rust Compiler Builder
 
 on:
-  workflow_dispatch:
   push:
     paths-ignore:
       - '**/README.md'
+  workflow_dispatch:
+    inputs:
+      rust-backtrace:
+        description: Enable RUST_BACKTRACE (0 or 1)
+        required: false
+        default: '1'
+        type: choice
+        options:
+          - '0'
+          - '1'
+      rust-channel:
+        description: Set RUST_CHANNEL (dev, nightly, beta, stable)
+        required: false
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - nightly
+          - beta
+          - stable
+      rust-verbose:
+        description: Set RUST_VERBOSE level (0, 1, 2, 3)
+        required: false
+        default: '3'
+        type: choice
+        options:
+          - '0'
+          - '1'
+          - '2'
+          - '3'
   schedule:
     # https://crontab.guru/
     # At 12:00 AM
@@ -29,7 +58,6 @@ jobs:
             os: macos-13 # x86-64
             xcode-version: 14.3.1
             rust-config: configure
-            rust-verbose-level: 3
             rust-use-lld: true
             macosx_deployment_target: 11.0
             iphoneos_deployment_target: 14.0
@@ -38,16 +66,19 @@ jobs:
             os: macos-13 # x86-64
             xcode-version: 14.3.1
             rust-config: configure
-            rust-verbose-level: 3
             rust-use-lld: true
             macosx_deployment_target: 11.0
             iphoneos_deployment_target: 14.0
 
     runs-on: ${{ matrix.os }}
     env:
+      BOOTSTRAP_SKIP_TARGET_SANITY: 0
       MACOSX_DEPLOYMENT_TARGET: ${{ matrix.macosx_deployment_target }}
       IPHONEOS_DEPLOYMENT_TARGET: ${{ matrix.iphoneos_deployment_target }}
+      RUST_BACKTRACE: ${{ github.event.inputs.rust-backtrace || '0' }}
+      RUST_CHANNEL: ${{ github.event.inputs.rust-channel || 'dev' }}
       RUST_TARGETS: ${{ matrix.rust-targets }}
+      RUST_VERBOSE: ${{ github.event.inputs.rust-verbose || '0' }}
 
     steps:
       - name: Install Xcode ${{ matrix.xcode-version }}
@@ -94,7 +125,6 @@ jobs:
       - name: Configure Rust
         run: make ${{ matrix.rust-config }}
         env:
-          RUST_VERBOSE: ${{ matrix.rust-verbose-level }}
           RUST_USE_LLD: ${{ matrix.rust-use-lld }}
 
       - name: Show config.toml
@@ -115,11 +145,11 @@ jobs:
       - name: Archive Rust dist
         uses: actions/upload-artifact@v4
         with:
-          name: rust-${{ matrix.rust-targets }}_${{ matrix.xcode-version }}-${{ matrix.os }}
+          name: rust-${{ env.RUST_CHANNEL }}-${{ matrix.rust-targets }}-${{ matrix.xcode-version }}-${{ matrix.os }}
           path: ./rust/build/dist/*.xz
 
       - name: Archive target spec
         uses: actions/upload-artifact@v4
         with:
-          name: rust-${{ matrix.rust-targets }}_${{ matrix.xcode-version }}-spec
+          name: rust-${{ env.RUST_CHANNEL }}-${{ matrix.rust-targets }}-${{ matrix.xcode-version }}-spec
           path: ./*.json

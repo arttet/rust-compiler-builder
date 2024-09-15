@@ -13,6 +13,10 @@ RUST_USE_LLD ?= false
 help:			## Show this help
 	@fgrep -h "## " $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/## //'
 
+.PHONY: clean
+clean:			## Remove download artifacts
+	rm -rf rust
+
 # Note: use Makefile.local for customization
 -include misc/make/offline.Makefile
 -include Makefile.local
@@ -21,7 +25,7 @@ help:			## Show this help
 
 .PHONY: download
 download:		## Download Rust sources
-	git clone --recurse-submodules -j8 ${RUST_GIT_URL}
+	git clone --recurse-submodules -j$(shell nproc) ${RUST_GIT_URL}
 
 ###
 # Configure: https://github.com/rust-lang/rust/blob/master/src/bootstrap/configure.py

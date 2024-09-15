@@ -7,8 +7,8 @@ on:
       - '**/README.md'
   schedule:
     # https://crontab.guru/
-    # At 12:00 AM, only on Monday
-    - cron: 0 0 * * 1
+    # At 12:00 AM
+    - cron: 0 0 * * *
 
 jobs:
   build:
@@ -68,7 +68,7 @@ jobs:
 
       - name: Show System Info
         run: |
-          echo $PATH
+          echo ${PATH}
           uname -a
           xcodebuild -version
           xcrun --show-sdk-path
@@ -96,6 +96,10 @@ jobs:
         env:
           RUST_VERBOSE: ${{ matrix.rust-verbose-level }}
           RUST_USE_LLD: ${{ matrix.rust-use-lld }}
+
+      - name: Show config.toml
+        run: cat config.toml
+        working-directory: ./rust
 
       - name: Build Rust
         run: make all

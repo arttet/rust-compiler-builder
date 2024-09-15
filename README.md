@@ -11,12 +11,13 @@ $ make
 help:                   Show this help
 ▸▸▸ Download commands ◂◂◂
 download:               Download Rust sources
-download-offline:       Download prebuilt Rust binaries
 ▸▸▸ Configure commands ◂◂◂
 configure:              Configure Rust
 configure-with-llvm:    Configure Rust and LLVM
 ▸▸▸ Target Info commands ◂◂◂
 show-target-info:       Show target info
+▸▸▸ Offline commands ◂◂◂
+offline:                Download prebuilt Rust binaries and cache them for offline use
 ```
 
 <!--

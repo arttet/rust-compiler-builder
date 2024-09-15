@@ -1,12 +1,6 @@
-RUST_PREBUILT_VERSION ?= 2023-11-13
-RUST_PREBUILT_COMPONENTS ?= rust-std rustc cargo rustfmt
-RUST_PREBUILT_CHANNELS ?= beta nightly
-RUST_PREBUILT_TARGET ?= x86_64-apple-darwin
-RUST_PREBUILT_OUTPUT_DIR ?= rust/build/cache
-
 RUST_GIT_URL ?= https://github.com/rust-lang/rust.git
 RUST_TOOLS ?= cargo,clippy,rustdoc,rustfmt,rust-analyzer,analysis,src
-RUST_TARGETS ?= aarch64-apple-ios,aarch64-apple-darwin
+RUST_TARGETS ?= aarch64-apple-darwin,aarch64-apple-ios,arm64e-apple-darwin,arm64e-apple-ios
 RUST_HOST ?= x86_64-apple-darwin
 RUST_VERBOSE ?= 0
 RUST_CHANNEL ?= dev
@@ -15,29 +9,19 @@ RUST_INSTALL_DIR ?= install
 RUST_DIST_FORMATS ?= xz
 RUST_USE_LLD ?= false
 
-# NOTE: use Makefile.local for customization
--include Makefile.local
-
 .PHONY: help
 help:			## Show this help
 	@fgrep -h "## " $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/## //'
+
+# Note: use Makefile.local for customization
+-include misc/make/offline.Makefile
+-include Makefile.local
 
 ## ▸▸▸ Download commands ◂◂◂
 
 .PHONY: download
 download:		## Download Rust sources
 	git clone --recurse-submodules -j8 ${RUST_GIT_URL}
-
-.PHONY: download-offline
-download-offline: SHELL:=/bin/bash
-download-offline:	## Download prebuilt Rust binaries
-	mkdir -p ${RUST_PREBUILT_OUTPUT_DIR}/${RUST_PREBUILT_VERSION}
-	@for RUST_CHANNEL in ${RUST_PREBUILT_CHANNELS}; do \
-		for RUST_COMPONENT in ${RUST_PREBUILT_COMPONENTS}; do \
-			RUST_FILENAME=${RUST_PREBUILT_VERSION}/$${RUST_COMPONENT}-$${RUST_CHANNEL}-${RUST_PREBUILT_TARGET}.tar.xz ; \
-			curl --fail https://static.rust-lang.org/dist/$${RUST_FILENAME} --output ${RUST_PREBUILT_OUTPUT_DIR}/$${RUST_FILENAME} ; \
-		done; \
-	done;
 
 ###
 # Configure: https://github.com/rust-lang/rust/blob/master/src/bootstrap/configure.py

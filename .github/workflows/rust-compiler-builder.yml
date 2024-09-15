@@ -22,7 +22,6 @@ jobs:
           # https://developer.apple.com/support/xcode/
 
           # Regression: arm64e-apple-darwin
-          # Regression: arm64e-apple-ios
           # Regression: aarch64-apple-tvos
           # Regression: macos-14 arm64
 
@@ -35,7 +34,7 @@ jobs:
             macosx_deployment_target: 11.0
             iphoneos_deployment_target: 14.0
 
-          - rust-targets: aarch64-apple-ios
+          - rust-targets: aarch64-apple-ios,arm64e-apple-ios
             os: macos-13 # x86-64
             xcode-version: 14.3.1
             rust-config: configure

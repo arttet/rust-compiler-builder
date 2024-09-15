@@ -9,6 +9,7 @@ Builds the *Rust* compiler and [Tier 3 targets](https://doc.rust-lang.org/nightl
 ```sh
 $ make
 help:                   Show this help
+clean:                  Remove download artifacts
 ▸▸▸ Download commands ◂◂◂
 download:               Download Rust sources
 ▸▸▸ Configure commands ◂◂◂

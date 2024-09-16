@@ -51,30 +51,23 @@ jobs:
           # https://developer.apple.com/support/xcode/
 
           # Regression: arm64e-apple-darwin
-          # Regression: aarch64-apple-tvos
           # Regression: macos-14 arm64
 
-          - rust-targets: aarch64-apple-darwin
+          - rust-targets: aarch64-apple-darwin,aarch64-apple-ios,aarch64-apple-tvos,arm64e-apple-ios
             os: macos-13 # x86-64
-            xcode-version: 14.3.1
+            xcode-version: 15.2
             rust-config: configure
-            rust-use-lld: true
+            rust-use-lld: false
             macosx_deployment_target: 11.0
             iphoneos_deployment_target: 14.0
-
-          - rust-targets: aarch64-apple-ios,arm64e-apple-ios
-            os: macos-13 # x86-64
-            xcode-version: 14.3.1
-            rust-config: configure
-            rust-use-lld: true
-            macosx_deployment_target: 11.0
-            iphoneos_deployment_target: 14.0
+            tvos_deployment_target: 14.0
 
     runs-on: ${{ matrix.os }}
     env:
       BOOTSTRAP_SKIP_TARGET_SANITY: 0
       MACOSX_DEPLOYMENT_TARGET: ${{ matrix.macosx_deployment_target }}
       IPHONEOS_DEPLOYMENT_TARGET: ${{ matrix.iphoneos_deployment_target }}
+      TVOS_DEPLOYMENT_TARGET: ${{ matrix.tvos_deployment_target }}
       RUST_BACKTRACE: ${{ github.event.inputs.rust-backtrace || '0' }}
       RUST_CHANNEL: ${{ github.event.inputs.rust-channel || 'dev' }}
       RUST_TARGETS: ${{ matrix.rust-targets }}

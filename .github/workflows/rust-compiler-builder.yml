@@ -5,6 +5,7 @@ on:
     paths-ignore:
       - '**/README.md'
       - '**/LICENSE'
+      - '**/doc/**'
   schedule:
     # https://crontab.guru/
     # At 12:00 AM

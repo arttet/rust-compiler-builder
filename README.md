@@ -8,8 +8,9 @@ Builds the *Rust* compiler and [Tier 3 targets](https://doc.rust-lang.org/nightl
 
 ```sh
 $ make
+▸▸▸ Auxiliary commands ◂◂◂
 help:                   Show this help
-clean:                  Remove download artifacts
+clean:                  Remove downloaded artifacts
 ▸▸▸ Download commands ◂◂◂
 download:               Download Rust sources
 ▸▸▸ Configure commands ◂◂◂
@@ -17,6 +18,10 @@ configure:              Configure Rust
 configure-with-llvm:    Configure Rust and LLVM
 ▸▸▸ Target Info commands ◂◂◂
 show-target-info:       Show target info
+▸▸▸ Documentation commands ◂◂◂
+doc-build:              Build the documentation site [env: DOC_DIR=]
+doc-serve:              Serve the documentation site [env: DOC_PORT=]
+doc-clean:              Remove generated artifacts [env: DOC_DIR=]
 ▸▸▸ Offline commands ◂◂◂
 offline:                Download prebuilt Rust binaries and cache them for offline use
 ```

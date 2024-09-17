@@ -9,6 +9,7 @@ RUST_INSTALL_DIR ?= install
 RUST_DIST_FORMATS ?= xz
 RUST_USE_LLD ?= false
 
+## ▸▸▸ Auxiliary commands ◂◂◂
 .PHONY: help
 help:			## Show this help
 	@fgrep -h "## " $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/## //'
@@ -18,6 +19,7 @@ clean:			## Remove download artifacts
 	rm -rf rust
 
 # Note: use Makefile.local for customization
+-include misc/make/doc.Makefile
 -include misc/make/offline.Makefile
 -include Makefile.local
 

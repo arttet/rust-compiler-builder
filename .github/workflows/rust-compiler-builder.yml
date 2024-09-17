@@ -4,10 +4,15 @@ on:
   push:
     paths-ignore:
       - '**/README.md'
+      - '**/LICENSE'
+  schedule:
+    # https://crontab.guru/
+    # At 12:00 AM
+    - cron: 0 0 * * *
   workflow_dispatch:
     inputs:
       rust-backtrace:
-        description: Enable RUST_BACKTRACE (0 or 1)
+        description: Enable RUST_BACKTRACE
         required: false
         default: '1'
         type: choice
@@ -15,7 +20,7 @@ on:
           - '0'
           - '1'
       rust-channel:
-        description: Set RUST_CHANNEL (dev, nightly, beta, stable)
+        description: Set RUST_CHANNEL
         required: false
         default: 'dev'
         type: choice
@@ -25,19 +30,15 @@ on:
           - beta
           - stable
       rust-verbose:
-        description: Set RUST_VERBOSE level (0, 1, 2, 3)
+        description: Set RUST_VERBOSE
         required: false
-        default: '3'
+        default: '0'
         type: choice
         options:
           - '0'
           - '1'
           - '2'
           - '3'
-  schedule:
-    # https://crontab.guru/
-    # At 12:00 AM
-    - cron: 0 0 * * *
 
 jobs:
   build:
@@ -53,13 +54,20 @@ jobs:
           # Regression: arm64e-apple-darwin
           # Regression: macos-14 arm64
 
-          - rust-targets: aarch64-apple-darwin,aarch64-apple-ios,aarch64-apple-tvos,arm64e-apple-ios
+          - rust-targets: x86_64-apple-darwin,aarch64-apple-darwin,aarch64-apple-ios,arm64e-apple-ios
             os: macos-13 # x86-64
             xcode-version: 15.2
             rust-config: configure
             rust-use-lld: false
             macosx_deployment_target: 11.0
             iphoneos_deployment_target: 14.0
+
+          - rust-targets: x86_64-apple-tvos,aarch64-apple-tvos
+            os: macos-13 # x86-64
+            xcode-version: 15.2
+            rust-config: configure
+            rust-use-lld: false
+            macosx_deployment_target: 11.0
             tvos_deployment_target: 14.0
 
     runs-on: ${{ matrix.os }}

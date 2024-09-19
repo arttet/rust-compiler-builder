@@ -55,7 +55,7 @@ jobs:
           # Regression: arm64e-apple-darwin
           # Regression: macos-14 arm64
 
-          - rust-targets: x86_64-apple-darwin,aarch64-apple-darwin,aarch64-apple-ios,arm64e-apple-ios
+          - rust-targets: x86_64-apple-darwin,aarch64-apple-darwin,aarch64-apple-ios,arm64e-apple-darwin,arm64e-apple-ios
             os: macos-13 # x86-64
             xcode-version: 15.2
             rust-config: configure

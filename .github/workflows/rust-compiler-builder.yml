@@ -63,7 +63,7 @@ jobs:
             macosx_deployment_target: 11.0
             iphoneos_deployment_target: 14.0
 
-          - rust-targets: x86_64-apple-tvos,aarch64-apple-tvos
+          - rust-targets: x86_64-apple-tvos,aarch64-apple-tvos,arm64e-apple-tvos
             os: macos-13 # x86-64
             xcode-version: 15.2
             rust-config: configure
@@ -73,7 +73,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     env:
-      BOOTSTRAP_SKIP_TARGET_SANITY: 0
+      BOOTSTRAP_SKIP_TARGET_SANITY: 1 # TODO: disable BOOTSTRAP_SKIP_TARGET_SANITY when the 1.83 rustc is available
       MACOSX_DEPLOYMENT_TARGET: ${{ matrix.macosx_deployment_target }}
       IPHONEOS_DEPLOYMENT_TARGET: ${{ matrix.iphoneos_deployment_target }}
       TVOS_DEPLOYMENT_TARGET: ${{ matrix.tvos_deployment_target }}

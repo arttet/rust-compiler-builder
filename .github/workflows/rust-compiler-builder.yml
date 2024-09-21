@@ -52,7 +52,6 @@ jobs:
           # https://github.com/actions/runner-images/tree/main/images/macos
           # https://developer.apple.com/support/xcode/
 
-          # Regression: arm64e-apple-darwin
           # Regression: macos-14 arm64
 
           - rust-targets: x86_64-apple-darwin,aarch64-apple-darwin,aarch64-apple-ios,arm64e-apple-darwin,arm64e-apple-ios
@@ -73,6 +72,9 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     env:
+      # Tools
+      SCCACHE_GHA_ENABLED: 'on'
+      # The Rust Compiler
       BOOTSTRAP_SKIP_TARGET_SANITY: 1 # TODO: disable BOOTSTRAP_SKIP_TARGET_SANITY when the 1.83 rustc is available
       MACOSX_DEPLOYMENT_TARGET: ${{ matrix.macosx_deployment_target }}
       IPHONEOS_DEPLOYMENT_TARGET: ${{ matrix.iphoneos_deployment_target }}
@@ -83,7 +85,14 @@ jobs:
       RUST_VERBOSE: ${{ github.event.inputs.rust-verbose || '0' }}
 
     steps:
-      - name: Install Xcode ${{ matrix.xcode-version }}
+      - name: Configure Cache Env
+        uses: actions/github-script@v7
+        with:
+          script: |
+            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+
+      - name: Select Xcode ${{ matrix.xcode-version }}
         run: |
           sudo xcode-select -s /Applications/Xcode_${{ matrix.xcode-version }}.app
           sudo xcode-select -p
@@ -101,17 +110,51 @@ jobs:
 
       - name: Show System Info
         run: |
-          echo ${PATH}
+
+          echo "::group::uname"
           uname -a
-          xcodebuild -version
-          xcrun --show-sdk-path
-          sccache --version
-          cmake --version
-          ninja --version
-          clang -v
-          ld -v
-          lld -flavor ld --version
+          echo "::endgroup::"
+
+          echo "::group::env"
+          env
+          echo "::endgroup::"
+
+          echo "::group::disk space"
           df -h .
+          echo "::endgroup::"
+
+          echo "::group::sccache"
+          sccache --version
+          sccache --show-stats
+          echo "::endgroup::"
+
+          echo "::group::cmake"
+          cmake --version
+          echo "::endgroup::"
+
+          echo "::group::ninja"
+          ninja --version
+          echo "::endgroup::"
+
+          echo "::group::xcodebuild"
+          xcodebuild -version
+          echo "::endgroup::"
+
+          echo "::group::xcrun"
+          xcrun --show-sdk-path
+          echo "::endgroup::"
+
+          echo "::group::clang"
+          clang -v
+          echo "::endgroup::"
+
+          echo "::group::ld"
+          ld -v
+          echo "::endgroup::"
+
+          echo "::group::lld"
+          lld -flavor ld --version
+          echo "::endgroup::"
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -155,3 +198,9 @@ jobs:
         with:
           name: rust-${{ env.RUST_CHANNEL }}-${{ matrix.rust-targets }}-${{ matrix.xcode-version }}-spec
           path: ./*.json
+
+      - name: Show Build Stats
+        run: |
+          echo "::group::sccache"
+          sccache --show-stats
+          echo "::endgroup::"

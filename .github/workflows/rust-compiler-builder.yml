@@ -71,7 +71,7 @@ jobs:
               --set target.arm64e-apple-darwin.profiler=false
               --set build.optimized-compiler-builtins=false
 
-          - rust-targets: aarch64-apple-ios,arm64e-apple-darwin
+          - rust-targets: arm64e-apple-ios
             rust-host: x86_64-apple-darwin
             os: macos-13
             xcode-version: 15.2
@@ -80,12 +80,8 @@ jobs:
             rust-use-lld: false
             macosx_deployment_target: 11.0
             iphoneos_deployment_target: 15.0
-            # TODO: See regressions
-            rust-configure-args: >-
-              --set target.arm64e-apple-darwin.profiler=false
-              --set build.optimized-compiler-builtins=false
 
-          - rust-targets: x86_64-apple-tvos,aarch64-apple-tvos,arm64e-apple-tvos
+          - rust-targets: arm64e-apple-tvos
             rust-host: x86_64-apple-darwin
             os: macos-13
             xcode-version: 15.2
@@ -95,8 +91,6 @@ jobs:
             macosx_deployment_target: 11.0
             tvos_deployment_target: 15.0
             rust-configure-args: >-
-              --set target.x86_64-apple-tvos.profiler=false
-              --set target.aarch64-apple-tvos.profiler=false
               --set target.arm64e-apple-tvos.profiler=false
 
     runs-on: ${{ matrix.os }}

@@ -1,24 +1,22 @@
+.DEFAULT_GOAL := help
+
+################################################################################
+
 RUST_GIT_URL ?= https://github.com/rust-lang/rust.git
-RUST_TOOLS ?= cargo,clippy,rustdoc,rustfmt,rust-analyzer,analysis,src
-RUST_TARGETS ?= aarch64-apple-darwin,aarch64-apple-ios,arm64e-apple-darwin,arm64e-apple-ios
 RUST_HOST ?= x86_64-apple-darwin
-RUST_VERBOSE ?= 0
+RUST_TARGETS ?= arm64e-apple-darwin
+RUST_TOOLS ?= cargo,clippy,rustdoc,rustfmt,rust-analyzer,analysis,src
 RUST_CHANNEL ?= dev
+RUST_CODEGEN_BACKENDS ?= llvm
+RUST_USE_LLD ?= false
+RUST_VERBOSE ?= 0
 RUST_DESCRIPTION ?= ""
 RUST_INSTALL_DIR ?= install
 RUST_DIST_FORMATS ?= xz
-RUST_USE_LLD ?= false
-
-## ▸▸▸ Auxiliary commands ◂◂◂
-.PHONY: help
-help:			## Show this help
-	@fgrep -h "## " $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/## //'
-
-.PHONY: clean
-clean:			## Remove download artifacts
-	rm -rf rust
+RUST_CONFIGURE_ARGS ?=
 
 # Note: use Makefile.local for customization
+-include misc/make/utility.Makefile
 -include misc/make/doc.Makefile
 -include misc/make/offline.Makefile
 -include Makefile.local
@@ -36,45 +34,87 @@ download:		## Download Rust sources
 ## ▸▸▸ Configure commands ◂◂◂
 
 .PHONY: configure
-configure:		## Configure Rust
+configure:		## Configure Rust & LLVM with optimizations
 	cd rust && ./configure \
 		--enable-option-checking \
+		--enable-verbose-configure \
+		--enable-sccache \
+		--enable-ninja \
 		--enable-verbose-tests \
-		--codegen-backends=llvm \
 		--enable-codegen-tests \
 		--enable-dist-src \
-		--tools=${RUST_TOOLS} \
+		--enable-optimize-llvm \
+		--enable-full-tools \
+		--enable-sanitizers \
+		--enable-profiler \
+		--host=${RUST_HOST} \
 		--target=${RUST_TARGETS} \
+		--set llvm.download-ci-llvm=false \
+		--set llvm.targets="AArch64;X86" \
+		--set llvm.experimental-targets="" \
+		--set llvm.static-libstdcpp \
+		--set llvm.tests=true \
+		--set build.verbose=${RUST_VERBOSE} \
+		--set rust.channel=${RUST_CHANNEL} \
+		--set rust.jemalloc \
+		--set rust.lto=thin \
+		--set rust.codegen-units=1 \
+		--set rust.codegen-backends=${RUST_CODEGEN_BACKENDS} \
+		--set rust.use-lld=${RUST_USE_LLD} \
+		--set rust.omit-git-hash=true \
+		--dist-compression-formats=${RUST_DIST_FORMATS} \
+		--prefix=${RUST_INSTALL_DIR} \
+		${RUST_CONFIGURE_ARGS}
+
+.PHONY: configure-dev
+configure-dev:		## Configure Rust without optimizations
+	cd rust && ./configure \
+		--enable-option-checking \
+		--enable-verbose-configure \
+		--enable-verbose-tests \
+		--enable-codegen-tests \
+		--host=${RUST_HOST} \
+		--target=${RUST_TARGETS} \
+		--tools=${RUST_TOOLS} \
 		--set llvm.download-ci-llvm=true \
 		--set build.verbose=${RUST_VERBOSE} \
 		--set rust.channel=${RUST_CHANNEL} \
 		--set rust.description=${RUST_DESCRIPTION} \
 		--set rust.use-lld=${RUST_USE_LLD} \
 		--dist-compression-formats=${RUST_DIST_FORMATS} \
-		--prefix=${RUST_INSTALL_DIR}
+		--prefix=${RUST_INSTALL_DIR} \
+		${RUST_CONFIGURE_ARGS}
 
-.PHONY: configure-with-llvm
-configure-with-llvm:	## Configure Rust and LLVM
+.PHONY: configure-dev-llvm
+configure-dev-llvm:	## Configure Rust & LLVM without optimizations
 	cd rust && ./configure \
 		--enable-option-checking \
-		--enable-sccache \
-		--enable-ninja \
+		--enable-verbose-configure \
 		--enable-verbose-tests \
 		--enable-codegen-tests \
-		--enable-dist-src \
-		--enable-full-tools \
-		--tools=${RUST_TOOLS} \
+		--enable-sccache \
+		--enable-ninja \
+		--host=${RUST_HOST} \
 		--target=${RUST_TARGETS} \
+		--tools=${RUST_TOOLS} \
+		--enable-debug-assertions \
+		--enable-overflow-checks \
+		--enable-llvm-assertions \
+		--codegen-backends=${RUST_CODEGEN_BACKENDS} \
 		--set llvm.download-ci-llvm=false \
 		--set llvm.targets="AArch64;X86" \
 		--set llvm.experimental-targets="" \
+		--set llvm.static-libstdcpp \
 		--set llvm.tests=true \
 		--set build.verbose=${RUST_VERBOSE} \
 		--set rust.channel=${RUST_CHANNEL} \
-		--set rust.description=${RUST_DESCRIPTION} \
+		--set rust.verify-llvm-ir \
+		--set rust.use-lld=${RUST_USE_LLD} \
+		--set rust.codegen-backends=${RUST_CODEGEN_BACKENDS} \
 		--set rust.omit-git-hash=true \
 		--dist-compression-formats=${RUST_DIST_FORMATS} \
-		--prefix=${RUST_INSTALL_DIR}
+		--prefix=${RUST_INSTALL_DIR} \
+		${RUST_CONFIGURE_ARGS}
 
 ## ▸▸▸ Target Info commands ◂◂◂
 

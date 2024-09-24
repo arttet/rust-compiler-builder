@@ -38,22 +38,28 @@ configure:		## Configure Rust & LLVM with optimizations
 	cd rust && ./configure \
 		--enable-option-checking \
 		--enable-verbose-configure \
+		--enable-locked-deps \
+		--enable-cargo-native-static \
+		--enable-codegen-tests \
+		--enable-verbose-tests \
+		--enable-dist-src \
 		--enable-sccache \
 		--enable-ninja \
-		--enable-verbose-tests \
-		--enable-codegen-tests \
-		--enable-dist-src \
 		--enable-optimize-llvm \
 		--enable-full-tools \
 		--enable-sanitizers \
 		--enable-profiler \
 		--host=${RUST_HOST} \
 		--target=${RUST_TARGETS} \
+		--codegen-backends=${RUST_CODEGEN_BACKENDS} \
 		--set llvm.download-ci-llvm=false \
 		--set llvm.targets="AArch64;X86" \
 		--set llvm.experimental-targets="" \
 		--set llvm.static-libstdcpp \
 		--set llvm.tests=true \
+		--set build.optimized-compiler-builtins \
+		--set build.print-step-timings \
+		--set build.metrics \
 		--set build.verbose=${RUST_VERBOSE} \
 		--set rust.channel=${RUST_CHANNEL} \
 		--set rust.jemalloc \
@@ -62,6 +68,7 @@ configure:		## Configure Rust & LLVM with optimizations
 		--set rust.codegen-backends=${RUST_CODEGEN_BACKENDS} \
 		--set rust.use-lld=${RUST_USE_LLD} \
 		--set rust.omit-git-hash=true \
+		--set dist.compression-profile=balanced \
 		--dist-compression-formats=${RUST_DIST_FORMATS} \
 		--prefix=${RUST_INSTALL_DIR} \
 		${RUST_CONFIGURE_ARGS}
@@ -71,16 +78,23 @@ configure-dev:		## Configure Rust without optimizations
 	cd rust && ./configure \
 		--enable-option-checking \
 		--enable-verbose-configure \
-		--enable-verbose-tests \
+		--enable-locked-deps \
+		--enable-cargo-native-static \
 		--enable-codegen-tests \
+		--enable-verbose-tests \
+		--enable-dist-src \
 		--host=${RUST_HOST} \
 		--target=${RUST_TARGETS} \
 		--tools=${RUST_TOOLS} \
 		--set llvm.download-ci-llvm=true \
+		--set build.optimized-compiler-builtins \
+		--set build.print-step-timings \
+		--set build.metrics \
 		--set build.verbose=${RUST_VERBOSE} \
 		--set rust.channel=${RUST_CHANNEL} \
 		--set rust.description=${RUST_DESCRIPTION} \
 		--set rust.use-lld=${RUST_USE_LLD} \
+		--set dist.compression-profile=balanced \
 		--dist-compression-formats=${RUST_DIST_FORMATS} \
 		--prefix=${RUST_INSTALL_DIR} \
 		${RUST_CONFIGURE_ARGS}
@@ -90,28 +104,35 @@ configure-dev-llvm:	## Configure Rust & LLVM without optimizations
 	cd rust && ./configure \
 		--enable-option-checking \
 		--enable-verbose-configure \
-		--enable-verbose-tests \
+		--enable-locked-deps \
+		--enable-cargo-native-static \
 		--enable-codegen-tests \
+		--enable-verbose-tests \
+		--enable-dist-src \
 		--enable-sccache \
 		--enable-ninja \
-		--host=${RUST_HOST} \
-		--target=${RUST_TARGETS} \
-		--tools=${RUST_TOOLS} \
 		--enable-debug-assertions \
 		--enable-overflow-checks \
 		--enable-llvm-assertions \
+		--host=${RUST_HOST} \
+		--target=${RUST_TARGETS} \
+		--tools=${RUST_TOOLS} \
 		--codegen-backends=${RUST_CODEGEN_BACKENDS} \
 		--set llvm.download-ci-llvm=false \
 		--set llvm.targets="AArch64;X86" \
 		--set llvm.experimental-targets="" \
 		--set llvm.static-libstdcpp \
 		--set llvm.tests=true \
+		--set build.optimized-compiler-builtins \
+		--set build.print-step-timings \
+		--set build.metrics \
 		--set build.verbose=${RUST_VERBOSE} \
 		--set rust.channel=${RUST_CHANNEL} \
 		--set rust.verify-llvm-ir \
 		--set rust.use-lld=${RUST_USE_LLD} \
 		--set rust.codegen-backends=${RUST_CODEGEN_BACKENDS} \
 		--set rust.omit-git-hash=true \
+		--set dist.compression-profile=balanced \
 		--dist-compression-formats=${RUST_DIST_FORMATS} \
 		--prefix=${RUST_INSTALL_DIR} \
 		${RUST_CONFIGURE_ARGS}

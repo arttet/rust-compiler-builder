@@ -57,20 +57,6 @@ jobs:
           # Regression: --enable-profiler
           # Regression: --set build.optimized-compiler-builtins
 
-          - rust-targets: arm64e-apple-darwin
-            rust-host: x86_64-apple-darwin
-            os: macos-13
-            xcode-version: 15.2
-            rust-config: configure
-            rust-no-debug-assertions: 1
-            rust-use-lld: false
-            macosx_deployment_target: 11.0
-            iphoneos_deployment_target: 15.0
-            # TODO: See regressions
-            rust-configure-args: >-
-              --set target.arm64e-apple-darwin.profiler=false
-              --set build.optimized-compiler-builtins=false
-
           - rust-targets: arm64e-apple-ios
             rust-host: x86_64-apple-darwin
             os: macos-13
@@ -79,19 +65,27 @@ jobs:
             rust-no-debug-assertions: 1
             rust-use-lld: false
             macosx_deployment_target: 11.0
-            iphoneos_deployment_target: 15.0
+            iphoneos_deployment_target: 14.0
 
-          - rust-targets: arm64e-apple-tvos
+          - rust-targets: arm64e-apple-ios
             rust-host: x86_64-apple-darwin
             os: macos-13
-            xcode-version: 15.2
+            xcode-version: 15.0.1
             rust-config: configure
             rust-no-debug-assertions: 1
             rust-use-lld: false
             macosx_deployment_target: 11.0
-            tvos_deployment_target: 15.0
-            rust-configure-args: >-
-              --set target.arm64e-apple-tvos.profiler=false
+            iphoneos_deployment_target: 14.0
+
+          - rust-targets: arm64e-apple-ios
+            rust-host: x86_64-apple-darwin
+            os: macos-13
+            xcode-version: 14.3.1
+            rust-config: configure
+            rust-no-debug-assertions: 1
+            rust-use-lld: false
+            macosx_deployment_target: 11.0
+            iphoneos_deployment_target: 14.0
 
     runs-on: ${{ matrix.os }}
     env:
@@ -230,3 +224,10 @@ jobs:
           echo "::group::sccache"
           sccache --show-stats
           echo "::endgroup::"
+
+      - name: Archive the Rust build
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rust-${{ matrix.xcode-version }}
+          path: ./rust/build

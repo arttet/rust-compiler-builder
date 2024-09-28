@@ -54,8 +54,6 @@ jobs:
           # https://support.apple.com/en-us/100100
 
           # Regression: macos-14 arm64
-          # Regression: --enable-profiler
-          # Regression: --set build.optimized-compiler-builtins
 
           - rust-targets: arm64e-apple-darwin
             rust-host: x86_64-apple-darwin
@@ -66,10 +64,6 @@ jobs:
             rust-use-lld: false
             macosx_deployment_target: 11.0
             iphoneos_deployment_target: 15.0
-            # TODO: See regressions
-            rust-configure-args: >-
-              --set target.arm64e-apple-darwin.profiler=false
-              --set build.optimized-compiler-builtins=false
 
           - rust-targets: arm64e-apple-ios
             rust-host: x86_64-apple-darwin

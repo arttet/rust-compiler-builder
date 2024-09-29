@@ -53,9 +53,27 @@ jobs:
           # https://developer.apple.com/support/xcode/
           # https://support.apple.com/en-us/100100
 
-          # Regression: macos-14 arm64
+          # Regression: rust-host: arm64e-apple-darwin [macos-14]
 
           - rust-targets: arm64e-apple-darwin
+            rust-host: x86_64-apple-darwin
+            os: macos-13
+            xcode-version: 15.2
+            rust-config: configure
+            rust-no-debug-assertions: 1
+            rust-use-lld: false
+            macosx_deployment_target: 11.0
+
+          - rust-targets: arm64e-apple-darwin
+            rust-host: aarch64-apple-darwin
+            os: macos-14
+            xcode-version: 15.4
+            rust-config: configure
+            rust-no-debug-assertions: 1
+            rust-use-lld: true
+            macosx_deployment_target: 11.0
+
+          - rust-targets: arm64e-apple-ios
             rust-host: x86_64-apple-darwin
             os: macos-13
             xcode-version: 15.2
@@ -66,12 +84,12 @@ jobs:
             iphoneos_deployment_target: 15.0
 
           - rust-targets: arm64e-apple-ios
-            rust-host: x86_64-apple-darwin
-            os: macos-13
-            xcode-version: 15.2
+            rust-host: aarch64-apple-darwin
+            os: macos-14
+            xcode-version: 15.4
             rust-config: configure
             rust-no-debug-assertions: 1
-            rust-use-lld: false
+            rust-use-lld: true
             macosx_deployment_target: 11.0
             iphoneos_deployment_target: 15.0
 

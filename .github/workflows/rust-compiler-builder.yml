@@ -143,8 +143,10 @@ jobs:
         run: brew install sccache
 
       - name: Install llvm
+        if: ${{ matrix.rust-use-lld }}
         run: |
           brew install llvm
+          # brew install lld
           echo "PATH=$PATH:/opt/homebrew/opt/llvm/bin:/usr/local/opt/llvm/bin" >> $GITHUB_ENV
 
       - name: Show System Info
@@ -191,7 +193,7 @@ jobs:
           echo "::endgroup::"
 
           echo "::group::lld"
-          lld -flavor ld --version
+          lld -flavor ld --version || true
           echo "::endgroup::"
 
       - name: Checkout

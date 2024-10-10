@@ -199,8 +199,8 @@ jobs:
       - name: Checkout Rust
         uses: actions/checkout@v4
         with:
-          repository: rust-lang/rust
-          ref: master
+          repository: arttet/rust
+          ref: fix/cc
           submodules: true
           path: rust
 

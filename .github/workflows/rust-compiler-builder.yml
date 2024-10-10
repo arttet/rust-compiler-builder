@@ -53,8 +53,6 @@ jobs:
           # https://developer.apple.com/support/xcode/
           # https://support.apple.com/en-us/100100
 
-          # Regression: rust-host: arm64e-apple-darwin [macos-14]
-
           - rust-targets: arm64e-apple-darwin
             rust-host: x86_64-apple-darwin
             os: macos-13
@@ -65,7 +63,7 @@ jobs:
             macosx_deployment_target: 11.0
 
           - rust-targets: arm64e-apple-darwin
-            rust-host: aarch64-apple-darwin
+            rust-host: arm64e-apple-darwin
             os: macos-14
             xcode-version: 15.4
             rust-config: configure
@@ -84,7 +82,7 @@ jobs:
             iphoneos_deployment_target: 15.0
 
           - rust-targets: arm64e-apple-ios
-            rust-host: aarch64-apple-darwin
+            rust-host: arm64e-apple-darwin
             os: macos-14
             xcode-version: 15.4
             rust-config: configure

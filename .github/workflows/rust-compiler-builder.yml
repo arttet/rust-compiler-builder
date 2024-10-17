@@ -62,7 +62,7 @@ jobs:
             rust-config: configure
             rust-no-debug-assertions: 1
             rust-use-lld: false
-            macosx_deployment_target: 11.0
+            macosx_deployment_target: 13.0
 
           - rust-targets: arm64e-apple-darwin
             rust-host: aarch64-apple-darwin

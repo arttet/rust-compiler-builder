@@ -196,10 +196,10 @@ jobs:
           echo "::endgroup::"
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Checkout Rust
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: rust-lang/rust
           ref: master

@@ -66,7 +66,7 @@ configure:		## Configure Rust & LLVM with optimizations
 		--set rust.lto=thin \
 		--set rust.codegen-units=1 \
 		--set rust.codegen-backends=${RUST_CODEGEN_BACKENDS} \
-		--set rust.use-lld=${RUST_USE_LLD} \
+		--set rust.lld=${RUST_USE_LLD} \
 		--set rust.omit-git-hash=true \
 		--set dist.compression-profile=balanced \
 		--dist-compression-formats=${RUST_DIST_FORMATS} \
@@ -93,7 +93,7 @@ configure-dev:		## Configure Rust without optimizations
 		--set build.verbose=${RUST_VERBOSE} \
 		--set rust.channel=${RUST_CHANNEL} \
 		--set rust.description=${RUST_DESCRIPTION} \
-		--set rust.use-lld=${RUST_USE_LLD} \
+		--set rust.lld=${RUST_USE_LLD} \
 		--set dist.compression-profile=balanced \
 		--dist-compression-formats=${RUST_DIST_FORMATS} \
 		--prefix=${RUST_INSTALL_DIR} \

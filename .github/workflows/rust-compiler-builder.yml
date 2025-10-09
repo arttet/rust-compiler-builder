@@ -1,15 +1,15 @@
 name: Rust Compiler Builder
 
 on:
-  push:
-    paths-ignore:
-      - '**/README.md'
-      - '**/LICENSE'
-      - '**/doc/**'
-  schedule:
-    # https://crontab.guru/
-    # At 12:00 AM
-    - cron: 0 0 * * *
+  # push:
+  #   paths-ignore:
+  #     - '**/README.md'
+  #     - '**/LICENSE'
+  #     - '**/doc/**'
+  # schedule:
+  #   # https://crontab.guru/
+  #   # At 12:00 AM
+  #   - cron: 0 0 * * *
   workflow_dispatch:
     inputs:
       rust-backtrace:
@@ -55,62 +55,73 @@ jobs:
 
           # Regression: rust-host: arm64e-apple-darwin [macos-14]
 
-          - rust-targets: arm64e-apple-darwin
-            rust-host: x86_64-apple-darwin
-            os: macos-13
-            xcode-version: 15.2
-            rust-config: configure
-            rust-no-debug-assertions: 1
-            rust-use-lld: false
-            macosx_deployment_target: 11.0
-
+          # macOS arm64
           - rust-targets: arm64e-apple-darwin
             rust-host: aarch64-apple-darwin
-            os: macos-14
-            xcode-version: 15.4
+            os: macos-26
+            xcode-version: 16.4
             rust-config: configure
             rust-no-debug-assertions: 1
             rust-use-lld: true
             macosx_deployment_target: 11.0
+          # - rust-targets: arm64e-apple-ios
+          #   rust-host: aarch64-apple-darwin
+          #   os: macos-26
+          #   xcode-version: 16.4
+          #   rust-config: configure
+          #   rust-no-debug-assertions: 1
+          #   rust-use-lld: true
+          #   macosx_deployment_target: 11.0
+          #   iphoneos_deployment_target: 14.0
+          # - rust-targets: arm64e-apple-tvos
+          #   rust-host: aarch64-apple-darwin
+          #   os: macos-26
+          #   xcode-version: 16.4
+          #   rust-config: configure
+          #   rust-no-debug-assertions: 1
+          #   rust-use-lld: false
+          #   macosx_deployment_target: 11.0
+          #   tvos_deployment_target: 18.0
+          #   rust-configure-args: >-
+          #     --set target.arm64e-apple-tvos.profiler=false
 
-          - rust-targets: arm64e-apple-ios
-            rust-host: x86_64-apple-darwin
-            os: macos-13
-            xcode-version: 15.2
-            rust-config: configure
-            rust-no-debug-assertions: 1
-            rust-use-lld: false
-            macosx_deployment_target: 11.0
-            iphoneos_deployment_target: 15.0
-
-          - rust-targets: arm64e-apple-ios
-            rust-host: aarch64-apple-darwin
-            os: macos-14
-            xcode-version: 15.4
-            rust-config: configure
-            rust-no-debug-assertions: 1
-            rust-use-lld: true
-            macosx_deployment_target: 11.0
-            iphoneos_deployment_target: 15.0
-
-          - rust-targets: arm64e-apple-tvos
-            rust-host: x86_64-apple-darwin
-            os: macos-13
-            xcode-version: 15.2
-            rust-config: configure
-            rust-no-debug-assertions: 1
-            rust-use-lld: false
-            macosx_deployment_target: 11.0
-            tvos_deployment_target: 15.0
-            rust-configure-args: >-
-              --set target.arm64e-apple-tvos.profiler=false
+          # macOS Intel
+          # - rust-targets: arm64e-apple-darwin
+          #   rust-host: x86_64-apple-darwin
+          #   os: macos-15-intel
+          #   xcode-version: 16.4
+          #   rust-config: configure
+          #   rust-no-debug-assertions: 1
+          #   rust-use-lld: false
+          #   macosx_deployment_target: 11.0
+          # - rust-targets: arm64e-apple-ios
+          #   rust-host: x86_64-apple-darwin
+          #   os: macos-15-intel
+          #   xcode-version: 16.4
+          #   rust-config: configure
+          #   rust-no-debug-assertions: 1
+          #   rust-use-lld: false
+          #   macosx_deployment_target: 11.0
+          #   iphoneos_deployment_target: 18.0
+          # - rust-targets: arm64e-apple-tvos
+          #   rust-host: x86_64-apple-darwin
+          #   os: macos-15-intel
+          #   xcode-version: 16.4
+          #   rust-config: configure
+          #   rust-no-debug-assertions: 1
+          #   rust-use-lld: false
+          #   macosx_deployment_target: 11.0
+          #   tvos_deployment_target: 18.0
+          #   rust-configure-args: >-
+          #     --set target.arm64e-apple-tvos.profiler=false
 
     runs-on: ${{ matrix.os }}
     env:
+      # CARGO_TARGET_ARM64E_APPLE_DARWIN_LINKER: clang
       # Tools
-      SCCACHE_GHA_ENABLED: 'on'
+      SCCACHE_GHA_ENABLED: 'true'
       # The Rust Compiler
-      BOOTSTRAP_SKIP_TARGET_SANITY: 1 # TODO: disable BOOTSTRAP_SKIP_TARGET_SANITY when the 1.83 rustc is available
+      BOOTSTRAP_SKIP_TARGET_SANITY: 0
       NO_DEBUG_ASSERTIONS: ${{ matrix.rust-no-debug-assertions}}
       MACOSX_DEPLOYMENT_TARGET: ${{ matrix.macosx_deployment_target }}
       MACOSX_STD_DEPLOYMENT_TARGET: ${{ matrix.macosx_deployment_target }}
@@ -122,32 +133,18 @@ jobs:
       RUST_TARGETS: ${{ matrix.rust-targets }}
       RUST_VERBOSE: ${{ github.event.inputs.rust-verbose || '0' }}
       RUST_CONFIGURE_ARGS: ${{ matrix.rust-configure-args }} --set change-id=99999999
-
     steps:
-      - name: Configure Cache Env
-        uses: actions/github-script@v7
-        with:
-          script: |
-            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
-            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
-
+      - name: Configure sccache cache
+        uses: mozilla-actions/sccache-action@v0.0.9
       - name: Select Xcode ${{ matrix.xcode-version }}
         run: |
           sudo xcode-select -s /Applications/Xcode_${{ matrix.xcode-version }}.app
           sudo xcode-select -p
-
-      - name: Install Ninja
-        run: brew install ninja
-
-      - name: Install sccache
-        run: brew install sccache
-
       - name: Install llvm
         if: ${{ matrix.rust-use-lld }}
         run: |
           brew install lld
           echo "PATH=$PATH:/opt/homebrew/opt/llvm/bin:/usr/local/opt/llvm/bin" >> $GITHUB_ENV
-
       - name: Show System Info
         run: |
           echo "::group::uname"
@@ -194,10 +191,8 @@ jobs:
           echo "::group::lld"
           lld -flavor ld --version || true
           echo "::endgroup::"
-
       - name: Checkout
         uses: actions/checkout@v5
-
       - name: Checkout Rust
         uses: actions/checkout@v5
         with:
@@ -205,39 +200,31 @@ jobs:
           ref: master
           submodules: true
           path: rust
-
       - name: Configure Rust
         run: make ${{ matrix.rust-config }}
         env:
           RUST_USE_LLD: ${{ matrix.rust-use-lld }}
-
-      - name: Show config.toml
-        run: cat config.toml
+      - name: Show bootstrap.toml
+        run: cat bootstrap.toml
         working-directory: ./rust
-
       - name: Build Rust
         run: make all
         working-directory: ./rust
-
       - name: Show Target Spec
         run: make show-target-info
-
       - name: Build Rust dist
         run: make dist
         working-directory: ./rust
-
       - name: Archive Rust dist
         uses: actions/upload-artifact@v4
         with:
           name: rust-${{ env.RUST_CHANNEL }}-${{ matrix.rust-targets }}-${{ matrix.xcode-version }}-${{ matrix.os }}
           path: ./rust/build/dist/*.xz
-
       - name: Archive target spec
         uses: actions/upload-artifact@v4
         with:
           name: rust-${{ env.RUST_CHANNEL }}-${{ matrix.rust-targets }}-${{ matrix.xcode-version }}-spec
           path: ./*.json
-
       - name: Show Build Stats
         run: |
           echo "::group::sccache"
